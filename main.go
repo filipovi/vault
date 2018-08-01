@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -47,8 +48,28 @@ func (env *Env) handlePasswordRequest(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	password, err := generator.NewPassword(p.Name, p.Passphrase, p.Service, p.Length, p.Counter, env.scope)
+	data := bytes.Buffer{}
+	data.Write([]byte(env.scope))
+	data.Write([]byte(p.Name))
+	data.Write([]byte(p.Passphrase))
+	data.Write([]byte(p.Service))
+	data.WriteString(fmt.Sprint(p.Length))
+	data.WriteString(fmt.Sprint(p.Counter))
+	key := env.client.GetHashKey(data.String(), "password:%s")
+	password, err := env.client.Load(key)
+	if err == nil && password != "" {
+		send([]byte(password), "text/plain", http.StatusOK, w)
+		return
+
+	}
+
+	password, err = generator.NewPassword(p.Name, p.Passphrase, p.Service, p.Length, p.Counter, env.scope)
 	if err != nil {
+		send([]byte(err.Error()), "text/plain", http.StatusNotAcceptable, w)
+		return
+	}
+
+	if err = env.client.Save(key, []byte(password)); err != nil {
 		send([]byte(err.Error()), "text/plain", http.StatusNotAcceptable, w)
 		return
 	}
@@ -99,7 +120,7 @@ func getEnv(key, fallback string) string {
 func main() {
 	env, err := connect("config.json")
 	failOnError(err, "Failed to connect to Redis")
-	env.scope = getEnv(os.Getenv("SECRET"), "")
+	env.scope = getEnv("SECRET", "")
 	if env.scope == "" {
 		log.Fatal("The scope is missing")
 	}
@@ -120,7 +141,7 @@ func main() {
 	n.Use(c)
 
 	// Launch the Web Server
-	addr := fmt.Sprintf("0.0.0.0:%s", getEnv(os.Getenv("PORT"), "3000"))
+	addr := fmt.Sprintf("0.0.0.0:%s", getEnv("PORT", "3000"))
 	srv := &http.Server{
 		Handler:      n,
 		Addr:         addr,
