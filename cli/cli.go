@@ -23,21 +23,24 @@ func main() {
 	service := flag.String("service", "", "the name of the service")
 	passphrase := flag.String("passphrase", "", "your passphrase")
 	length := flag.Int("length", 35, "password length")
+	counter := flag.Int("counter", 1, "counter")
+	scope := flag.String("scope", "", "your scope")
 	flag.Parse()
 
 	if err := checkFlag(*name); err != nil {
 		log.Fatal(err)
 	}
-
 	if err := checkFlag(*service); err != nil {
 		log.Fatal(err)
 	}
-
 	if err := checkFlag(*passphrase); err != nil {
 		log.Fatal(err)
 	}
+	if err := checkFlag(*scope); err != nil {
+		log.Fatal(err)
+	}
 
-	password, err := generator.NewPassword(*name, *passphrase, *service, *length)
+	password, err := generator.NewPassword(*name, *passphrase, *service, *length, *counter, *scope)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -45,7 +45,7 @@ func (mclient *mockClient) FlushAll() error {
 // Tests
 func TestGetHomepageRequest(t *testing.T) {
 	expected := "The service is working!"
-	env := Env{&mockClient{}}
+	env := Env{&mockClient{}, "com.www.test"}
 	rec := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/", nil)
 	http.HandlerFunc(env.handleHomeRequest).ServeHTTP(rec, req)
@@ -54,7 +54,7 @@ func TestGetHomepageRequest(t *testing.T) {
 }
 
 func TestPassword(t *testing.T) {
-	expected := "j-3Bt4dg9:(Lk#7i7OFCaH@vm6M6ZvxL"
+	expected := "&Mk*Ep]4([y3RM8MG}8^akvxfOn`^}4a"
 	payload := Payload{
 		Name:       "name",
 		Passphrase: "passphrase",
@@ -62,7 +62,7 @@ func TestPassword(t *testing.T) {
 		Length:     32,
 	}
 
-	env := Env{&mockClient{}}
+	env := Env{&mockClient{}, "com.test.vault"}
 	rec := httptest.NewRecorder()
 	body, _ := json.Marshal(payload)
 	req, _ := http.NewRequest("POST", "/password", bytes.NewBuffer(body))

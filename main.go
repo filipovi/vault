@@ -20,6 +20,7 @@ import (
 // Env contains the Redis client
 type Env struct {
 	client redis.Cacher
+	scope  string
 }
 
 // Payload as used in the POST request
@@ -28,6 +29,7 @@ type Payload struct {
 	Passphrase string `json:"passphrase"`
 	Service    string `json:"service"`
 	Length     int    `json:"length"`
+	Counter    int    `json:"counter"`
 }
 
 func (env *Env) handleHomeRequest(w http.ResponseWriter, req *http.Request) {
@@ -45,7 +47,7 @@ func (env *Env) handlePasswordRequest(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	password, err := generator.NewPassword(p.Name, p.Passphrase, p.Service, p.Length)
+	password, err := generator.NewPassword(p.Name, p.Passphrase, p.Service, p.Length, p.Counter, env.scope)
 	if err != nil {
 		send([]byte(err.Error()), "text/plain", http.StatusNotAcceptable, w)
 		return
@@ -97,6 +99,10 @@ func getEnv(key, fallback string) string {
 func main() {
 	env, err := connect("config.json")
 	failOnError(err, "Failed to connect to Redis")
+	env.scope = getEnv(os.Getenv("SECRET"), "")
+	if env.scope == "" {
+		log.Fatal("The scope is missing")
+	}
 
 	n := negroni.Classic()
 
