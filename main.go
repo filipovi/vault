@@ -11,7 +11,6 @@ import (
 
 	"github.com/filipovi/redis"
 	"github.com/filipovi/vault/generator"
-	"github.com/phyber/negroni-gzip/gzip"
 	"github.com/rs/cors"
 	"github.com/urfave/negroni"
 	goji "goji.io"
@@ -88,6 +87,13 @@ func connect(file string) (*Env, error) {
 	return env, nil
 }
 
+func getEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
+}
+
 func main() {
 	env, err := connect("config.json")
 	failOnError(err, "Failed to connect to Redis")
@@ -106,10 +112,9 @@ func main() {
 		AllowedOrigins: []string{"http://0.0.0.0"},
 	})
 	n.Use(c)
-	n.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	// Launch the Web Server
-	addr := fmt.Sprintf("0.0.0.0:%s", os.Getenv("PORT"))
+	addr := fmt.Sprintf("0.0.0.0:%s", getEnv(os.Getenv("PORT"), "3000"))
 	srv := &http.Server{
 		Handler:      n,
 		Addr:         addr,

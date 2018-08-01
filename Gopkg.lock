@@ -17,12 +17,6 @@
   revision = "ff4d2ddcc2d439631ec555e44b0649ad0a0b7afe"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/phyber/negroni-gzip"
-  packages = ["gzip"]
-  revision = "ef6356a5d02936b65ca8e60b604ed6b078aac8d3"
-
-[[projects]]
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
@@ -82,6 +76,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "bd251af48c1ea9a9c05d8d8ccf07779af12868b9cef033f1414ab73d7c8e92b0"
+  inputs-digest = "1ebccbd7be33caf8dfd44f1f29be24c3fce3ab327d8cd06bc6ccc9217ad4aba6"
   solver-name = "gps-cdcl"
   solver-version = 1
