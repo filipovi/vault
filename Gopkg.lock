@@ -2,13 +2,19 @@
 
 
 [[projects]]
+  name = "github.com/davecgh/go-spew"
+  packages = ["spew"]
+  revision = "346938d642f2ec3594ed81d874461961cd0faa76"
+  version = "v1.1.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/filipovi/redis"
   packages = [
     ".",
     "config"
   ]
-  revision = "9b514b85d4fd6439554c053f5b3bc72177f8e973"
+  revision = "ff4d2ddcc2d439631ec555e44b0649ad0a0b7afe"
 
 [[projects]]
   branch = "master"
@@ -17,10 +23,22 @@
   revision = "ef6356a5d02936b65ca8e60b604ed6b078aac8d3"
 
 [[projects]]
+  name = "github.com/pmezard/go-difflib"
+  packages = ["difflib"]
+  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
+
+[[projects]]
   name = "github.com/rs/cors"
   packages = ["."]
   revision = "3fb1b69b103a84de38a19c3c6ec073dd6caa4d3f"
   version = "v1.5.0"
+
+[[projects]]
+  name = "github.com/stretchr/testify"
+  packages = ["assert"]
+  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
+  version = "v1.2.2"
 
 [[projects]]
   name = "github.com/urfave/negroni"
@@ -64,6 +82,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c11406f3c3b16310be91f5117d24814968179373c93ed3b8a0c4d64d87a46387"
+  inputs-digest = "bd251af48c1ea9a9c05d8d8ccf07779af12868b9cef033f1414ab73d7c8e92b0"
   solver-name = "gps-cdcl"
   solver-version = 1

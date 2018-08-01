@@ -20,10 +20,11 @@ import (
 
 // Env contains the Redis client
 type Env struct {
-	client redis.Client
+	client redis.Cacher
 }
 
-type payload struct {
+// Payload as used in the POST request
+type Payload struct {
 	Name       string `json:"name"`
 	Passphrase string `json:"passphrase"`
 	Service    string `json:"service"`
@@ -37,7 +38,7 @@ func (env *Env) handleHomeRequest(w http.ResponseWriter, req *http.Request) {
 func (env *Env) handlePasswordRequest(w http.ResponseWriter, req *http.Request) {
 	decoder := json.NewDecoder(req.Body)
 	defer req.Body.Close()
-	p := &payload{}
+	p := &Payload{}
 	err := decoder.Decode(p)
 	if err != nil {
 		send([]byte(err.Error()), "text/plain", http.StatusBadRequest, w)
