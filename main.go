@@ -1,27 +1,26 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/filipovi/redis"
 	"github.com/filipovi/vault/generator"
-	"github.com/rs/cors"
-	"github.com/urfave/negroni"
-	goji "goji.io"
-	"goji.io/pat"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/render"
 )
 
 // Env contains the Redis client
 type Env struct {
-	client redis.Cacher
-	scope  string
+	cache redis.Cacher
+	scope string
 }
 
 // Payload as used in the POST request
@@ -48,15 +47,8 @@ func (env *Env) handlePasswordRequest(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	data := bytes.Buffer{}
-	data.Write([]byte(env.scope))
-	data.Write([]byte(p.Name))
-	data.Write([]byte(p.Passphrase))
-	data.Write([]byte(p.Service))
-	data.WriteString(fmt.Sprint(p.Length))
-	data.WriteString(fmt.Sprint(p.Counter))
-	key := env.client.GetHashKey(data.String(), "password:%s")
-	password, err := env.client.Load(key)
+	key := env.cache.GetHashKey(getKey(env.scope, p), "password:%s")
+	password, err := env.cache.Load(key)
 	if err == nil && password != "" {
 		send([]byte(password), "text/plain", http.StatusOK, w)
 		return
@@ -69,12 +61,24 @@ func (env *Env) handlePasswordRequest(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	if err = env.client.Save(key, []byte(password)); err != nil {
+	if err = env.cache.Save(key, []byte(password)); err != nil {
 		send([]byte(err.Error()), "text/plain", http.StatusNotAcceptable, w)
 		return
 	}
 
 	send([]byte(password), "text/plain", http.StatusOK, w)
+}
+
+func getKey(scope string, p *Payload) string {
+	var b strings.Builder
+	b.Write([]byte(scope))
+	b.Write([]byte(p.Name))
+	b.Write([]byte(p.Passphrase))
+	b.Write([]byte(p.Service))
+	b.WriteString(fmt.Sprint(p.Length))
+	b.WriteString(fmt.Sprint(p.Counter))
+
+	return b.String()
 }
 
 func send(content []byte, contentType string, status int, w http.ResponseWriter) {
@@ -104,7 +108,7 @@ func connect(file string) (*Env, error) {
 	log.Println("Redis connected!")
 
 	env := &Env{
-		client: *redis,
+		cache: *redis,
 	}
 
 	return env, nil
@@ -125,25 +129,21 @@ func main() {
 		log.Fatal("The scope is missing")
 	}
 
-	n := negroni.Classic()
+	r := chi.NewRouter()
 
-	// Routing
-	mux := goji.NewMux()
-	mux.HandleFunc(pat.Get("/"), env.handleHomeRequest)
-	mux.HandleFunc(pat.Post("/password"), env.handlePasswordRequest)
+	r.Use(middleware.RequestID)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.URLFormat)
+	r.Use(render.SetContentType(render.ContentTypeJSON))
 
-	n.UseHandler(mux)
-
-	// Middlewares
-	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"http://0.0.0.0"},
-	})
-	n.Use(c)
+	r.Get("/", env.handleHomeRequest)
+	r.Post("/password", env.handlePasswordRequest)
 
 	// Launch the Web Server
 	addr := fmt.Sprintf("0.0.0.0:%s", getEnv("PORT", "3000"))
 	srv := &http.Server{
-		Handler:      n,
+		Handler:      r,
 		Addr:         addr,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
