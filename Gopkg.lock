@@ -17,16 +17,25 @@
   revision = "ff4d2ddcc2d439631ec555e44b0649ad0a0b7afe"
 
 [[projects]]
+  name = "github.com/go-chi/chi"
+  packages = [
+    ".",
+    "middleware"
+  ]
+  revision = "e83ac2304db3c50cf03d96a2fcd39009d458bc35"
+  version = "v3.3.2"
+
+[[projects]]
+  name = "github.com/go-chi/render"
+  packages = ["."]
+  revision = "3215478343fbc559bd3fc08f7031bb134d6bdad5"
+  version = "v1.0.1"
+
+[[projects]]
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
-
-[[projects]]
-  name = "github.com/rs/cors"
-  packages = ["."]
-  revision = "3fb1b69b103a84de38a19c3c6ec073dd6caa4d3f"
-  version = "v1.5.0"
 
 [[projects]]
   name = "github.com/stretchr/testify"
@@ -35,30 +44,13 @@
   version = "v1.2.2"
 
 [[projects]]
-  name = "github.com/urfave/negroni"
-  packages = ["."]
-  revision = "5dbbc83f748fc3ad38585842b0aedab546d0ea1e"
-  version = "v0.3.0"
-
-[[projects]]
-  name = "goji.io"
-  packages = [
-    ".",
-    "internal",
-    "pat",
-    "pattern"
-  ]
-  revision = "0d89ff54b2c18c9c4ba530e32496aef902d3c6cd"
-  version = "v2.0"
-
-[[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
   packages = [
     "pbkdf2",
     "scrypt"
   ]
-  revision = "c126467f60eb25f8f27e5a981f32a87e3965053f"
+  revision = "de0752318171da717af4ce24d0a2e8626afaeb11"
 
 [[projects]]
   name = "gopkg.in/redis.v5"
@@ -76,6 +68,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "1ebccbd7be33caf8dfd44f1f29be24c3fce3ab327d8cd06bc6ccc9217ad4aba6"
+  inputs-digest = "0f5b5474db4f41acb55faa93d89ebcba718c7c6675cbe393e93e87b8ecdd2154"
   solver-name = "gps-cdcl"
   solver-version = 1
