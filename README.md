@@ -10,6 +10,7 @@
 
 - goji -> chi @DONE
 - rename generator in master_password
+- add master_password tests
 - run in minikube
 
 ## Vegeta
@@ -37,3 +38,44 @@
     Success       [ratio]                  100.00%
     Status Codes  [code:count]             200:25000  
     Error Set:
+
+## Minikube on Fedora
+
+### Nettoyage
+
+    minikube stop
+    minikube delete
+    rm -rf .kube
+    rm -rf .minikube
+
+    docker ps -aq |  xargs -r docker rm -v -f
+    docker rmi $(docker images -q) -f
+
+### Installation
+
+    sudo dnf install kubectl
+    sudo dnf install libvirt-daemon-kvm qemu-kvm\n
+    newgrp libvirt
+    curl -Lo docker-machine-driver-kvm2 https://storage.googleapis.com/minikube/releases/latest/docker-machine-driver-kvm2
+    sudo cp docker-machine-driver-kvm2 /usr/local/bin
+    rm docker-machine-driver-kvm2
+
+    minikube start --logtostderr  --vm-driver kvm2
+    minikube status
+    kubectl cluster-info
+    kubectl get nodes
+    minikube dashboard
+
+### Application in Minikube
+
+    eval $(minikube docker-env)
+    docker build . --tag filipovi/vault:v0.9
+    kubectl run vault --image=filipovi/vault:v0.9  --port=3000
+    minikube service --logtostderr vault
+    kubectl get deployments
+    kubectl get service
+
+### Remove the application from Minikube
+
+    delete service vault
+    kubectl delete deployment vault
