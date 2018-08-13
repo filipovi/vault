@@ -18,3 +18,4 @@
 /vendor
 gin-bin
 config.json
+.vscode
