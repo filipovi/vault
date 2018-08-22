@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -11,15 +12,18 @@ import (
 	"time"
 
 	"github.com/filipovi/redis"
-	"github.com/filipovi/vault/generator"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+
+	proto "github.com/filipovi/vault/proto"
+	"github.com/micro/go-micro"
 )
 
 // Env contains the Redis client
 type Env struct {
-	cache redis.Cacher
-	scope string
+	cache     redis.Cacher
+	scope     string
+	generator proto.GeneratorService
 }
 
 // Payload as used in the POST request
@@ -51,14 +55,22 @@ func (env *Env) handlePasswordRequest(w http.ResponseWriter, req *http.Request) 
 	if err == nil && password != "" {
 		send([]byte(password), http.StatusOK, w)
 		return
-
 	}
 
-	password, err = generator.NewPassword(p.Name, p.Passphrase, p.Service, int32(p.Length), int32(p.Counter), env.scope)
+	newPassword, err := env.generator.NewPassword(context.TODO(), &proto.NewPasswordRequest{
+		Name:       p.Name,
+		Passphrase: p.Passphrase,
+		Service:    p.Service,
+		Length:     int32(p.Length),
+		Counter:    int32(p.Counter),
+		Scope:      env.scope,
+	})
 	if err != nil {
 		send([]byte(err.Error()), http.StatusNotAcceptable, w)
 		return
 	}
+
+	password = newPassword.Password
 
 	if err = env.cache.Save(key, []byte(password)); err != nil {
 		send([]byte(err.Error()), http.StatusNotAcceptable, w)
@@ -122,10 +134,14 @@ func getEnv(key, fallback string) string {
 func main() {
 	env, err := connect("config.json")
 	failOnError(err, "Failed to connect to Redis")
+
 	env.scope = getEnv("SECRET", "")
 	if env.scope == "" {
 		log.Fatal("The scope is missing")
 	}
+
+	service := micro.NewService()
+	env.generator = proto.NewGeneratorService("master-password-generator", service.Client())
 
 	r := chi.NewRouter()
 
