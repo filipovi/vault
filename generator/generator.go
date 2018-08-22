@@ -50,7 +50,7 @@ func newMasterKey(name, passphrase, scope string) ([]byte, error) {
 	The site counter ensures you can easily create new keys for the site should a key become compromised.
 	Together, they create a cryptographic identifier that is unique to your account at this site.
 */
-func newSiteKey(mk []byte, service string, counter int, scope string) ([]byte, error) {
+func newSiteKey(mk []byte, service string, counter int32, scope string) ([]byte, error) {
 	seed := bytes.Buffer{}
 	seed.Write([]byte(scope))
 	seed.WriteString(fmt.Sprint(len(service)))
@@ -66,7 +66,7 @@ func newSiteKey(mk []byte, service string, counter int, scope string) ([]byte, e
 	The purpose of this step is to render the site’s cryptographic key into a format that the site’s password input will accept.
 	Master  Password  declares  several  site  password  formats  and  uses  these  pre-defined password “templates” to render the site key legible.
 */
-func newSitePassword(seed []byte, length int) (string, error) {
+func newSitePassword(seed []byte, length int32) (string, error) {
 	if length > 64 {
 		return "", fmt.Errorf("length > 64")
 	}
@@ -75,7 +75,7 @@ func newSitePassword(seed []byte, length int) (string, error) {
 	charsLength := len(chars)
 
 	password := ""
-	for index := 0; index < length; index++ {
+	for index := 0; index < int(length); index++ {
 		r := seed[index]
 
 		if int(r) < charsLength {
@@ -91,7 +91,7 @@ func newSitePassword(seed []byte, length int) (string, error) {
 }
 
 // NewPassword generates a Master Password based on https://masterpassword.app/masterpassword-algorithm.pdf
-func NewPassword(name, passphrase, service string, length int, counter int, scope string) (string, error) {
+func NewPassword(name, passphrase, service string, length int32, counter int32, scope string) (string, error) {
 	mk, err := newMasterKey(name, passphrase, scope)
 	if err != nil {
 		return "", err

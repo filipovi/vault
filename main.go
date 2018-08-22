@@ -54,7 +54,7 @@ func (env *Env) handlePasswordRequest(w http.ResponseWriter, req *http.Request) 
 
 	}
 
-	password, err = generator.NewPassword(p.Name, p.Passphrase, p.Service, p.Length, p.Counter, env.scope)
+	password, err = generator.NewPassword(p.Name, p.Passphrase, p.Service, int32(p.Length), int32(p.Counter), env.scope)
 	if err != nil {
 		send([]byte(err.Error()), http.StatusNotAcceptable, w)
 		return

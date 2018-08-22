@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+service Generator {
+	rpc NewPassword(NewPasswordRequest) returns (NewPasswordResponse) {}
+}
+
+message NewPasswordRequest {
+    string name = 1;
+    string passphrase = 2;
+    string service = 3;
+    int32 length = 4;
+    int32 counter = 5;
+    string scope = 6;
+}
+
+message NewPasswordResponse {
+	string password = 7;
+}
