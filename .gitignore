@@ -19,3 +19,6 @@
 gin-bin
 config.json
 .vscode
+
+# docker
+docker-compose.yml

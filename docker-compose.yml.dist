@@ -1,14 +1,19 @@
 version: '3'
 
 services:
-  vault:
-    build: .
+  api:
+    build: api/.
     ports:
       - "3000:3000"
     depends_on:
       - redis
+      - rpc
     environment:
       PORT: "${PORT}"
       SECRET: "${SECRET}"
+
   redis:
     image: "redis:alpine"
+
+  rpc:
+    build: rpc/.

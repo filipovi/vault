@@ -15,7 +15,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 
-	proto "github.com/filipovi/vault/proto"
+	proto "github.com/filipovi/vault/api/proto"
 	"github.com/micro/go-micro"
 )
 

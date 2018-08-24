@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 
-	"github.com/filipovi/vault/generator"
-	proto "github.com/filipovi/vault/proto"
+	"github.com/filipovi/master-password-generator"
+	proto "github.com/filipovi/vault/rpc/proto"
 	"github.com/micro/go-micro"
 )
 
