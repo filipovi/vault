@@ -20,3 +20,12 @@ build-docker-micro-vault: ## Build the docker image for the micro service
 	docker build -t micro-vault server/.
 
 all: build-proto build-docker ## build all the project
+
+minikube-start: ## Start Minikube
+	minikube start --logtostderr --vm-driver kvm2
+
+minikube-stop: ## Stop Minikube
+	minikube stop
+
+minikube-delete: ## Delete Minikube
+	minikube delete

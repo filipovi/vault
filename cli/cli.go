@@ -1,16 +1,18 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
 
-	"github.com/filipovi/vault/generator"
+	proto "github.com/filipovi/vault/api/proto"
+	micro "github.com/micro/go-micro"
 )
 
-func checkFlag(flag string) error {
+func checkFlag(key, flag string) error {
 	if flag == "" {
-		return fmt.Errorf("%s is empty", flag)
+		return fmt.Errorf("%s is empty", key)
 	}
 
 	return nil
@@ -27,23 +29,32 @@ func main() {
 	scope := flag.String("scope", "", "your scope")
 	flag.Parse()
 
-	if err := checkFlag(*name); err != nil {
+	if err := checkFlag("name", *name); err != nil {
 		log.Fatal(err)
 	}
-	if err := checkFlag(*service); err != nil {
+	if err := checkFlag("service", *service); err != nil {
 		log.Fatal(err)
 	}
-	if err := checkFlag(*passphrase); err != nil {
+	if err := checkFlag("passphrase", *passphrase); err != nil {
 		log.Fatal(err)
 	}
-	if err := checkFlag(*scope); err != nil {
+	if err := checkFlag("scope", *scope); err != nil {
 		log.Fatal(err)
 	}
 
-	password, err := generator.NewPassword(*name, *passphrase, *service, *length, *counter, *scope)
+	s := micro.NewService()
+	generator := proto.NewGeneratorService("master-password-generator", s.Client())
+	newPassword, err := generator.NewPassword(context.TODO(), &proto.NewPasswordRequest{
+		Name:       *name,
+		Passphrase: *passphrase,
+		Service:    *service,
+		Length:     int32(*length),
+		Counter:    int32(*counter),
+		Scope:      *scope,
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Print(password)
+	fmt.Print(newPassword.Password)
 }

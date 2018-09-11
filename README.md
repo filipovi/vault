@@ -19,6 +19,7 @@
 
 1. Goji
 
+```
     Requests      [total, rate]            25000, 5000.20
     Duration      [total, attack, wait]    5.000605241s, 4.9997995s, 805.741µs
     Latencies     [mean, 50, 95, 99, max]  14.086706ms, 2.84644ms, 89.886483ms, 195.154983ms, 285.813935ms
@@ -27,9 +28,11 @@
     Success       [ratio]                  100.00%
     Status Codes  [code:count]             200:25000  
     Error Set:
+```
 
 1. Chi
 
+```
     Requests      [total, rate]            25000, 4999.88
     Duration      [total, attack, wait]    5.001429649s, 5.000119764s, 1.309885ms
     Latencies     [mean, 50, 95, 99, max]  10.524365ms, 829.808µs, 90.547445ms, 145.97906ms, 1.058563681s
@@ -38,6 +41,7 @@
     Success       [ratio]                  100.00%
     Status Codes  [code:count]             200:25000  
     Error Set:
+```
 
 ## Minikube on Fedora
 
@@ -66,6 +70,17 @@
     kubectl get nodes
     minikube dashboard
 
+    .zshrc:
+    ...
+    # minikube
+    export MINIKUBE_WANTUPDATENOTIFICATION=false
+    export MINIKUBE_WANTREPORTERRORPROMPT=false
+    export MINIKUBE_HOME=$HOME
+    export CHANGE_MINIKUBE_NONE_USER=true
+    export KUBECONFIG=$HOME/.kube/config
+
+    eval $(minikube docker-env)
+
 ### Application in Minikube
 
     eval $(minikube docker-env)
@@ -75,7 +90,32 @@
     kubectl get deployments
     kubectl get service
 
+### Add a dummy interface for the docker rpc container to access the consul container
+
+    ip link show type dummy
+    sudo ip link add dummy0 type dummy
+    sudo ip link set dev dummy0 up
+    ip link show type dummy
+    sudo ip addr add 169.254.1.1/32 dev dummy0
+    sudo ip link set dev dummy0 up
+    ip addr show dev dummy0
+
+In /etc/systemd/network/dummy0.netdev:
+
+    [NetDev]
+    Name=dummy0
+    Kind=dummy
+
+In /etc/systemd/network/dummy0.network:
+
+    [Match]
+    Name=dummy0
+
+    [Network]
+    Address=169.254.1.1/32
+
 ### Remove the application from Minikube
 
     delete service vault
     kubectl delete deployment vault
+

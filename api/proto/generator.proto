@@ -14,5 +14,5 @@ message NewPasswordRequest {
 }
 
 message NewPasswordResponse {
-	string password = 7;
+	string password = 1;
 }
