@@ -1,11 +1,10 @@
 FROM golang:1.10 AS builder
 WORKDIR /go/src/github.com/filipovi/vault/api
 COPY . /go/src/github.com/filipovi/vault/api
-RUN go get -d -v github.com/go-chi/chi && \ 
-    go get -d -v gopkg.in/redis.v5 && \
-    go get -d -v github.com/filipovi/redis && \
-    go get -d -v github.com/golang/protobuf/proto && \
-    go get -d -v github.com/micro/go-micro
+RUN go get -v github.com/go-chi/chi && \
+    go get -v github.com/filipovi/redis && \
+    go get -v github.com/golang/protobuf/proto && \
+    go get -v github.com/micro/go-micro
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o api .
 
 FROM alpine:latest
